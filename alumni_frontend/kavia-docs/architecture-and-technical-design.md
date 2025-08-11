@@ -104,11 +104,35 @@ sequenceDiagram
 
 ## 6. Supabase Integration Details
 
-- **Supabase Client:** The application will import and initialize the Supabase client library, reading the URL and key from environment variables (`REACT_APP_SUPABASE_URL`, `REACT_APP_SUPABASE_KEY`).  
-- **Auth Flows:** Auth endpoints for OAuth and email/password provided by Supabase Auth. Password resets and email confirmations are handled by Supabase.
-- **Database:** Alumni registration info, profiles, and directory entries are stored in the Supabase PostgreSQL DB, exposed via Supabase REST endpoints.
-- **Security:** All write/read operations performed client-side are restricted to authenticated users based on Supabase's row-level security (RLS) policies.
-- **No current direct Supabase code exists; integration is a planned next step.**
+- **Supabase Client:** The application imports and initializes the Supabase client library, reading the URL and key from environment variables (`REACT_APP_SUPABASE_URL`, `REACT_APP_SUPABASE_KEY`).
+- **Auth Flows:** Auth endpoints for OAuth and email/password are provided by Supabase Auth. Password resets and email confirmations are handled by Supabase and do not require custom backend code.
+- **Database:** Alumni registration info, user profiles (using the same table), and directory entries are stored in the Supabase PostgreSQL DB, exposed via Supabase REST endpoints.
+- **Event Management:** Event data—including title, description, time, location, visibility, and images—is stored in the `events` table, while images are uploaded to the Supabase bucket `event-photos` and their URLs referenced from the events table.
+- **Security:** All write/read operations performed client-side are restricted to authenticated users based on Supabase's row-level security (RLS) policies. The `events` table is readable by all unless further RLS limits are configured; the `alumni` table requires authentication.
+- **Storage:** Event images (photos) are uploaded to the `event-photos` Supabase storage bucket and linked to events.
+- **Profile Data:** All editable profile data is stored in the `alumni` table; there is no separate profile table—this design is reflected throughout the frontend codebase.
+- **No additional or hidden backend tables exist at present; all core features (registration, login, profile, events, images) are handled through these resources.**
+
+### Supabase Database Tables and Buckets
+
+The following backend data structures are required and fully implemented:
+
+| Name           | Type          | Purpose                                                   | Key Fields/Columns                                             | Docs Reference               |
+|----------------|---------------|-----------------------------------------------------------|----------------------------------------------------------------|------------------------------|
+| alumni         | Database table| Alumni registration, authentication profile, directory    | id, name, branch, batch, reason, email, created_at             | supabase-alumni.md           |
+| events         | Database table| Event creation, listing, and details                      | id, title, description, datetime, location, publicity, photos, created_at | supabase.md                 |
+| event-photos   | Storage bucket| Upload and serve event images                             | Bucket folder structure: event-photos/{eventId}/filename       | supabase.md                  |
+
+- All user-related profile fields used in the profile management and registration features are direct columns in the `alumni` table.
+- No custom authentication tables are used; authentication and user records are handled entirely by Supabase Auth.
+- Images associated with events should always be uploaded into the `event-photos` bucket and the corresponding `photos` array updated in the related event row.
+- There are no additional database tables or storage buckets in use; should features expand in the future, this section must be updated.
+
+For detailed database column documentation, see:
+- [supabase-alumni.md](../supabase-alumni.md) (alumni table)
+- [supabase.md](../supabase.md) (events table, RLS, and storage)
+
+_All data access patterns in the frontend have been checked for compliance with this database/storage configuration._
 
 ---
 

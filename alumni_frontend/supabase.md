@@ -74,4 +74,77 @@ REACT_APP_SUPABASE_KEY=<your-anon-public-key>
 
 ---
 
-_Last updated: [Automated, event table and RLS configured via script]_
+_Last updated: [Automated, event & alumni table and RLS configured via script]_
+
+---
+
+## Alumni Table Schema (as of [auto-update])
+
+The alumni table is present and required for registration, directory, and profile features.
+
+| Column      | Type        | Nullable | Default        | Notes                              |
+|-------------|-------------|----------|----------------|------------------------------------|
+| id          | serial      |   No     |                | Primary key                        |
+| name        | text        |   No     |                | Full name (editable)               |
+| branch      | text        |   No     |                | Branch/Department                  |
+| batch       | text        |   No     |                | Batch year                         |
+| reason      | text        |   No     |                | Reason to join (enum, editable)    |
+| email       | text        |   No     |                | Auth email, unique (immutable)     |
+| created_at  | timestamptz |   No     | now()          | Record creation timestamp          |
+
+- Primary Key: `id`
+- Unique: `email`
+- RLS: enabled (see below)
+
+---
+
+## Row Level Security (RLS) Policies
+
+### Events Table
+- RLS enabled.
+- SELECT: allowed for any user (public read).
+- UPDATE/INSERT: restrict as needed via Supabase dashboard.
+
+### Alumni Table
+- RLS enabled.
+- SELECT: allowed for authenticated users only.
+- UPDATE: only allowed for the record owner (`auth.uid()`).
+
+See full policy SQL in this file.
+
+---
+
+## Storage Buckets
+
+Bucket: `event-photos`
+- Set up manually in Supabase UI.
+- Must allow upload for authenticated users and public read for all.
+- Used for event images (`event-photos/{eventId}/filename`).
+
+---
+
+## Environment & Auth Setup
+
+1. **Env Variables**
+   - `REACT_APP_SUPABASE_URL`
+   - `REACT_APP_SUPABASE_KEY`
+   - Must be present in `.env` for the React app.
+
+2. **Supabase Auth Site URL**
+   - In Supabase Dashboard, set Auth | URL Configuration to BOTH:
+     - `http://localhost:3000/**`
+     - `<production-domain>`
+   - All redirect URLs for OAuth and email sign-in must use these allowed domains.
+
+---
+
+## IMPORTANT: Manual Tasks Required
+
+- You **MUST** create the `event-photos` bucket via Supabase storage UI.
+- You **MUST** update environment variables (`REACT_APP_SUPABASE_URL`, `REACT_APP_SUPABASE_KEY`).
+- You **MUST** allow relevant redirects in Supabase Auth settings.
+
+---
+
+
+

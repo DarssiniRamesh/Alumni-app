@@ -81,3 +81,28 @@ export async function uploadEventImages(eventId, files) {
     .eq('id', eventId);
   return uploadedUrls;
 }
+
+// PUBLIC_INTERFACE
+export async function registerAlumnus({ name, branch, batch, reason }) {
+  /**
+   * Register a new alumnus in the 'alumni' table.
+   * Uses logged-in user's email from Supabase auth.
+   * @param {Object} - name, branch, batch, reason
+   * @returns Void or throws error
+   */
+  let user;
+  if (supabase.auth.getUser) {
+    user = (await supabase.auth.getUser()).data.user;
+  } else {
+    // fallback for older SDKs
+    user = supabase.auth.user && supabase.auth.user();
+  }
+  let email = user?.email;
+  if (!email) {
+    throw new Error("You must be logged in before submitting the registration form (email cannot be deduced).");
+  }
+  let { error } = await supabase.from('alumni').insert([{
+    name, branch, batch, reason, email,
+  }]);
+  if (error) throw error;
+}

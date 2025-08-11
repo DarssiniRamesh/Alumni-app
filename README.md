@@ -1,1 +1,3 @@
-# alumni-connect-platform-154944
+# Project Repository
+
+This is the initial README file for the project.

@@ -96,7 +96,16 @@ export default function UserProfile() {
             {REASONS.map(r => <option key={r}>{r}</option>)}
           </select>
         </label>
-        <button type="submit" className="theme-toggle" disabled={working} style={{width:"90%"}}>{working?"Saving...":"Save Changes"}</button>
+        {/* Submit button for saving profile changes */}
+        <button
+          type="submit"
+          className="theme-toggle"
+          disabled={working}
+          style={{width:"90%"}}
+          aria-label="Save Profile Changes"
+        >
+          {working?"Saving...":"Save Changes"}
+        </button>
         </form>
       ) : (
         <div>

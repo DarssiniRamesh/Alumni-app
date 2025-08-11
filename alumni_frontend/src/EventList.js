@@ -120,16 +120,40 @@ function EditEventDetails({ event, onSave }) {
   const [desc, setDesc] = useState(event.description || '');
   const [loc, setLoc] = useState(event.location || '');
 
+  // Ensure save button present and accessible via 'submit' action
   return (
     <form style={{ marginTop: 8 }} onSubmit={e => {
       e.preventDefault();
       onSave({ description: desc, location: loc });
     }}>
-      <input value={desc} onChange={e => setDesc(e.target.value)} required
-        style={{ width: '60%', marginBottom: 5, padding: 5, borderRadius: 4, border: '1px solid #dedede' }} />
-      <input value={loc} onChange={e => setLoc(e.target.value)} required
-        style={{ width: '38%', marginLeft: 6, padding: 5, borderRadius: 4, border: '1px solid #dedede' }} />
-      <button type="submit" className="theme-toggle" style={{ padding: '4px 10px', fontSize: 12 }}>Save</button>
+      <input
+        value={desc}
+        onChange={e => setDesc(e.target.value)}
+        required
+        placeholder="Update description"
+        style={{
+          width: '60%', marginBottom: 5, padding: 5, borderRadius: 4, border: '1px solid #dedede'
+        }}
+        aria-label="Event description"
+      />
+      <input
+        value={loc}
+        onChange={e => setLoc(e.target.value)}
+        required
+        placeholder="Update location"
+        style={{
+          width: '38%', marginLeft: 6, padding: 5, borderRadius: 4, border: '1px solid #dedede'
+        }}
+        aria-label="Event location"
+      />
+      <button
+        type="submit"
+        className="theme-toggle"
+        style={{ padding: '4px 10px', fontSize: 12, marginLeft: 6 }}
+        aria-label="Save Event Changes"
+      >
+        Save
+      </button>
     </form>
   );
 }

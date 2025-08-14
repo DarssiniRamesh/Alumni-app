@@ -35,7 +35,7 @@
   text-align: center;
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  min-height: 100vh;
+  min-height: 100dvh;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -52,7 +52,7 @@
 
 .App-header {
   background-color: var(--bg-secondary);
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;

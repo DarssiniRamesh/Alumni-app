@@ -25,7 +25,12 @@ function Navbar({ theme, toggleTheme }) {
       borderBottom: '1px solid var(--border-color)',
       position: 'sticky',
       top: 0,
-      zIndex: 100
+      zIndex: 100,
+      flexWrap: 'wrap',
+      boxSizing: 'border-box',
+      rowGap: 8,
+      columnGap: 12,
+      overflowX: 'hidden'
     }}>
       <Link to="/" style={{ marginRight: 18, fontWeight: 800, color: 'var(--text-primary)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
         <span role="img" aria-label="mortarboard" style={{ fontSize: 22 }}>🎓</span>
@@ -163,9 +168,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <div className="App" style={{ minHeight: '100vh', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+        <div className="App" style={{ minHeight: '100dvh', background: 'var(--bg-primary)', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', overflowX: 'hidden' }}>
           <Navbar theme={theme} toggleTheme={toggleTheme} />
-          <main style={{ padding: '2em 0' }}>
+          <main style={{ padding: '1.25rem 0', flex: 1, width: '100%', boxSizing: 'border-box', minHeight: 0 }}>
             <AppContent />
           </main>
         </div>

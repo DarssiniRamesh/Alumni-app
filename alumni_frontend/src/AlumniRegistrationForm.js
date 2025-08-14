@@ -69,7 +69,8 @@ export default function AlumniRegistrationForm({ onSuccess }) {
       style={{
         background: 'var(--bg-secondary)',
         maxWidth: 430,
-        margin: "2em auto",
+        width: 'min(100%, 430px)',
+        margin: "clamp(12px, 3vh, 24px) auto",
         borderRadius: 14,
         padding: 32,
         boxShadow: '0 2px 8px #e9ecef'

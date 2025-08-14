@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+test('renders login/register page when unauthenticated', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  // The login view headline toggles between "Login" and "Sign Up" - expect Login by default
+  const heading = screen.getByText(/login/i);
+  expect(heading).toBeInTheDocument();
 });

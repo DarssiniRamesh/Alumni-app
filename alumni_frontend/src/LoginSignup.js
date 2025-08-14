@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "./AuthProvider";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function LoginSignup() {
   const [isLogin, setIsLogin] = useState(true);
@@ -7,6 +8,9 @@ export default function LoginSignup() {
   const [pending, setPending] = useState(false);
   const [feedback, setFeedback] = useState("");
   const { signupWithEmail, loginWithEmail, signInWithProvider } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
 
   // PUBLIC_INTERFACE
   const emailSubmit = async (e) => {
@@ -19,9 +23,11 @@ export default function LoginSignup() {
       if (isLogin) {
         await loginWithEmail(form.email, form.password);
         setFeedback("Logged in!");
+        navigate(from, { replace: true });
       } else {
         await signupWithEmail(form.email, form.password);
         setFeedback("Check your email for confirmation!");
+        // For email signup, often verification is required; do not auto-redirect.
       }
     } catch (err) {
       setError(err.message || String(err));
@@ -35,6 +41,7 @@ export default function LoginSignup() {
     setError(""); setPending(true);
     try {
       await signInWithProvider(provider);
+      // OAuth will redirect; post-redirect, ProtectedRoute/Home will load.
     } catch (err) {
       setError(err.message || String(err));
     } finally { setPending(false); }

@@ -1,4 +1,4 @@
 {
     "command": "npm install && npx tsc --noEmit && npm test -- --ci",
-    "working_directory": "/home/kavia/workspace/code-generation/alumni-connect-platform-154944/alumni_frontend"
+    "working_directory": "/home/kavia/workspace/code-generation/Alumni-app/alumni_frontend"
 }

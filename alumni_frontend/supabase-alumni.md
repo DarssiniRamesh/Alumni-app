@@ -15,7 +15,10 @@ Table name: **alumni**
 | created_at | timestamptz | No  | now()   | Record created                         |
 
 - Enforce `email` uniqueness (1:1 with auth user).
-- RLS: Only row creator (auth.uid() == user.uid) can update their own record.
+- RLS:
+  - INSERT: Allowed for authenticated users if the inserted email equals the JWT email (`email = auth.jwt()->>'email'`).
+  - SELECT: Allowed for authenticated users (directory access).
+  - UPDATE: Allowed only for the record owner (`email = auth.jwt()->>'email'`).
 - Admin may view all via dashboard.
 - Directory requires `SELECT` on all rows for authenticated users.
 

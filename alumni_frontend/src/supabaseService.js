@@ -61,10 +61,10 @@ export async function uploadEventImages(eventId, files) {
     const path = `${eventId}/${Date.now()}_${encodeURIComponent(
       file.name.replace(/\s/g, '_')
     )}`;
-    let { data, error } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from('event-photos')
       .upload(path, file);
-    if (error) throw error;
+    if (uploadError) throw uploadError;
     // PUBLIC URL
     const { data: { publicUrl } } = supabase
       .storage

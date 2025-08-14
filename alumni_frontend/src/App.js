@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
 import './App.css';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import EventForm from './EventForm';
 import EventList from './EventList';
 import AlumniRegistrationForm from './AlumniRegistrationForm';
@@ -9,6 +8,8 @@ import AlumniDirectory from './AlumniDirectory';
 import UserProfile from "./UserProfile";
 import LoginSignup from "./LoginSignup";
 import { AuthProvider, useAuth } from './AuthProvider';
+import ProtectedRoute from './ProtectedRoute';
+import Home from './Home';
 
 function Navbar({ theme, toggleTheme }) {
   // Always call hooks at top level, never conditionally
@@ -24,59 +25,128 @@ function Navbar({ theme, toggleTheme }) {
       borderBottom: '1px solid var(--border-color)',
       position: 'sticky',
       top: 0,
-      zIndex: 100
+      zIndex: 100,
+      flexWrap: 'wrap',
+      boxSizing: 'border-box',
+      rowGap: 8,
+      columnGap: 12,
+      overflowX: 'hidden'
     }}>
-      <img src={logo} alt="logo" style={{ width: 44, height: 44, marginRight: 16 }} />
-      <Link to="/" style={{ marginRight: 18, fontWeight: 700, color: 'var(--text-primary)', textDecoration: 'none' }}>Home</Link>
-      <Link to="/directory" style={{ marginRight: 18, color: 'var(--text-primary)', textDecoration: 'none' }}>Directory</Link>
-      <Link to="/profile" style={{ marginRight: 18, color: 'var(--text-primary)', textDecoration: 'none' }}>Profile</Link>
-      <Link to="/register" style={{ marginRight: 18, color: 'var(--text-primary)', textDecoration: 'none' }}>Register</Link>
-      <Link to="/login" style={{ marginRight: 18, color: 'var(--text-primary)', textDecoration: 'none' }}>Login</Link>
-      <Link to="/events" style={{ marginRight: 18, color: 'var(--text-primary)', textDecoration: 'none' }}>Events</Link>
-      <Link to="/events/new" style={{ marginRight: 18, color: 'var(--text-primary)', textDecoration: 'none' }}>Create Event</Link>
-      {user && <button className="theme-toggle" style={{ marginLeft: "10px" }} onClick={logout}>Logout</button>}
-      <button 
-        className="theme-toggle" 
+      <Link to="/" style={{ marginRight: 18, fontWeight: 800, color: 'var(--text-primary)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span role="img" aria-label="mortarboard" style={{ fontSize: 22 }}>🎓</span>
+        <span>Alumni Connect</span>
+      </Link>
+
+      {user ? (
+        <>
+          <Link to="/" style={{ marginRight: 18, color: 'var(--text-primary)', textDecoration: 'none' }}>Home</Link>
+          <Link to="/directory" style={{ marginRight: 18, color: 'var(--text-primary)', textDecoration: 'none' }}>Directory</Link>
+          <Link to="/profile" style={{ marginRight: 18, color: 'var(--text-primary)', textDecoration: 'none' }}>Profile</Link>
+          <Link to="/register" style={{ marginRight: 18, color: 'var(--text-primary)', textDecoration: 'none' }}>Register</Link>
+          <Link to="/events" style={{ marginRight: 18, color: 'var(--text-primary)', textDecoration: 'none' }}>Events</Link>
+          <Link to="/events/new" style={{ marginRight: 18, color: 'var(--text-primary)', textDecoration: 'none' }}>Create Event</Link>
+          <button className="theme-toggle" style={{ marginLeft: "10px" }} onClick={logout}>Logout</button>
+        </>
+      ) : (
+        <div style={{ marginLeft: 6, fontSize: 14, color: '#666' }}>
+          {/* Minimal nav when unauthenticated */}
+        </div>
+      )}
+
+      <button
+        className="theme-toggle"
         onClick={toggleTheme}
         style={{ marginLeft: 'auto' }}
         aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
       >
         {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
       </button>
+
+      {!user && (
+        <Link
+          to="/login"
+          style={{
+            marginLeft: 10,
+            background: "var(--brand-primary)",
+            color: "#fff",
+            padding: "8px 14px",
+            borderRadius: 8,
+            textDecoration: "none",
+            fontWeight: 700
+          }}
+        >
+          Login / Register
+        </Link>
+      )}
     </nav>
   );
 }
 
 // PUBLIC_INTERFACE
-function AppContent({ theme, toggleTheme }) {
+function AppContent() {
+  const { user, loading } = useAuth();
+
+  // While loading auth state, prevent redirects flicker
+  if (loading) {
+    return <div style={{ textAlign: "center", marginTop: 40 }}>Loading...</div>;
+  }
+
   return (
     <Routes>
-      <Route path="/" element={
-        <div style={{
-          maxWidth: 500,
-          margin: '2em auto',
-          textAlign: 'center',
-          padding: 32,
-          background: 'var(--bg-secondary)',
-          borderRadius: 16,
-          boxShadow: '0 2px 8px var(--border-color)'
-        }}>
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1>Welcome to Alumni Connect Platform</h1>
-          <p>
-            Register, connect, and stay updated with alumni and events.
-          </p>
-          <p>
-            Jump to <Link to="/directory">Directory</Link> or <Link to="/events">Events</Link>.
-          </p>
-        </div>
-      } />
-      <Route path="/register" element={<AlumniRegistrationForm />} />
-      <Route path="/login" element={<LoginSignup />} />
-      <Route path="/directory" element={<AlumniDirectory />} />
-      <Route path="/profile" element={<UserProfile />} />
-      <Route path="/events" element={<EventList />} />
-      <Route path="/events/new" element={<EventForm />} />
+      {/* Redirect authenticated users away from login */}
+      <Route path="/login" element={user ? <Navigate to="/" replace /> : <LoginSignup />} />
+
+      {/* All other routes require authentication */}
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <ProtectedRoute>
+            <AlumniRegistrationForm />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/directory"
+        element={
+          <ProtectedRoute>
+            <AlumniDirectory />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <UserProfile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/events"
+        element={
+          <ProtectedRoute>
+            <EventList />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/events/new"
+        element={
+          <ProtectedRoute>
+            <EventForm />
+          </ProtectedRoute>
+        }
+      />
+      {/* Fallback to root (protected) */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
@@ -98,10 +168,10 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <div className="App" style={{ minHeight: '100vh', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+        <div className="App" style={{ minHeight: '100dvh', background: 'var(--bg-primary)', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', overflowX: 'hidden' }}>
           <Navbar theme={theme} toggleTheme={toggleTheme} />
-          <main style={{ padding: '2em 0' }}>
-            <AppContent theme={theme} toggleTheme={toggleTheme} />
+          <main style={{ padding: '1.25rem 0', flex: 1, width: '100%', boxSizing: 'border-box', minHeight: 0 }}>
+            <AppContent />
           </main>
         </div>
       </AuthProvider>

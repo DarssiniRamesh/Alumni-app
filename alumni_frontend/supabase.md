@@ -108,9 +108,17 @@ The alumni table is present and required for registration, directory, and profil
 ### Alumni Table
 - RLS enabled.
 - SELECT: allowed for authenticated users only.
-- UPDATE: only allowed for the record owner (`auth.uid()`).
+- INSERT: allowed for authenticated users only if the inserted row’s email equals the JWT email (`email = auth.jwt()->>'email'`).
+- UPDATE: only allowed for the record owner where the row’s email equals the JWT email (`email = auth.jwt()->>'email'`).
 
-See full policy SQL in this file.
+Policy summary (effective):
+- INSERT: authenticated WITH CHECK (email = (auth.jwt() ->> 'email'))
+- SELECT: authenticated USING (true)
+- UPDATE: authenticated USING (email = (auth.jwt() ->> 'email')) WITH CHECK (email = (auth.jwt() ->> 'email'))
+
+Additionally:
+- A partial unique index enforces unique email (case-insensitive) when email is not null:
+  CREATE UNIQUE INDEX alumni_email_unique_idx ON public.alumni (lower(email)) WHERE email IS NOT NULL;
 
 ---
 

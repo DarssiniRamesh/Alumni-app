@@ -18,12 +18,12 @@ export default function AlumniDirectory() {
   const loadAlumni = async () => {
     setFetching(true);
     setError("");
-    let { data, error } = await supabase
+    let { data, error: err } = await supabase
       .from("alumni")
       .select("*")
       .order("name");
     setFetching(false);
-    if (error) setError(error.message || String(error));
+    if (err) setError(err.message || String(err));
     else setAlumni(data);
   };
 
@@ -45,6 +45,11 @@ export default function AlumniDirectory() {
   return (
     <div style={{ maxWidth: 900, margin: "2em auto" }}>
       <h2>Alumni Directory</h2>
+      {error && (
+        <div style={{ color: "red", marginBottom: 12 }}>
+          {error}
+        </div>
+      )}
       <input
         value={search}
         onChange={e=>setSearch(e.target.value)}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { supabase, registerAlumnus } from "./supabaseService";
+import { registerAlumnus } from "./supabaseService";
 import "./App.css";
 
 // Enumerated reasons to join (adjust as needed)

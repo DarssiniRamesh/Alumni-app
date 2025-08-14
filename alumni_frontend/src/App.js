@@ -10,6 +10,8 @@ import LoginSignup from "./LoginSignup";
 import { AuthProvider, useAuth } from './AuthProvider';
 import ProtectedRoute from './ProtectedRoute';
 import Home from './Home';
+import AuthCallback from './auth/AuthCallback';
+import AuthError from './auth/AuthError';
 
 function Navbar({ theme, toggleTheme }) {
   // Always call hooks at top level, never conditionally
@@ -93,6 +95,10 @@ function AppContent() {
 
   return (
     <Routes>
+      {/* Auth callback + error routes (do not guard) */}
+      <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="/auth/error" element={<AuthError />} />
+
       {/* Redirect authenticated users away from login */}
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <LoginSignup />} />
 

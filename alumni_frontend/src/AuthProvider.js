@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState, createContext } from "react";
 import { supabase } from "./supabaseService";
+import { getURL } from "./utils/getURL";
 
 const AuthCtx = createContext(null);
 
@@ -19,11 +20,13 @@ export function AuthProvider({ children }) {
     let unsub = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
     });
-    supabase.auth.getSession().then(({data}) => {
+    supabase.auth.getSession().then(({ data }) => {
       setUser(data?.session?.user ?? null);
       setLoading(false);
     });
-    return () => { unsub?.data?.subscription?.unsubscribe?.(); }
+    return () => {
+      unsub?.data?.subscription?.unsubscribe?.();
+    };
   }, []);
 
   // PUBLIC_INTERFACE
@@ -38,15 +41,21 @@ export function AuthProvider({ children }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: provider,
       options: {
-        redirectTo: window.location.origin
-      }
+        redirectTo: `${getURL()}auth/callback`,
+      },
     });
     if (error) throw error;
   };
 
   // PUBLIC_INTERFACE
   const signupWithEmail = async (email, password) => {
-    const { error } = await supabase.auth.signUp({ email, password });
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${getURL()}auth/callback`,
+      },
+    });
     if (error) throw error;
   };
 
@@ -67,7 +76,11 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthCtx.Provider value={value}>
-      {loading ? <div style={{ textAlign: "center", marginTop: 40 }}>Loading user...</div> : children}
+      {loading ? (
+        <div style={{ textAlign: "center", marginTop: 40 }}>Loading user...</div>
+      ) : (
+        children
+      )}
     </AuthCtx.Provider>
   );
 }
